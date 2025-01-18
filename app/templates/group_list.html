@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+
+{% block title %}Group List{% endblock %}
+
+{% block content %}
+    <h1>Group List</h1>
+    <table>
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Name</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for group in groups %}
+            <tr>
+                <td>{{ group.id }}</td>
+                <td>{{ group.name }}</td>
+                <td>
+                    <a href="{{ url_for('group.group_detail', group_id=group.id) }}">View</a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+{% endblock %}

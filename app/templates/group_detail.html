@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+
+{% block title %}Group Detail - {{ group.name }}{% endblock %}
+
+{% block content %}
+    <h1>Group Detail</h1>
+    <div class="group-info">
+        <p><strong>Name:</strong> {{ group.name }}</p>
+        <p><strong>Permissions:</strong> {{ group.get_permissions() }}</p>
+    </div>
+    
+    <h2>Group Members</h2>
+    <ul>
+        {% for user in group.users %}
+        <li>
+            {{ user.first_name }} {{ user.last_name }}
+            {% if current_user.admin or current_user.id in group.admins %}
+            <a href="{{ url_for('group.remove_user', group_id=group.id, user_id=user.id) }}">Remove</a>
+            {% endif %}
+        </li>
+        {% endfor %}
+    </ul>
+    
+    {% if current_user.admin or current_user.id in group.admins %}
+    <h2>Add User to Group</h2>
+    <form method="POST" action="{{ url_for('group.add_user', group_id=group.id) }}">
+        <select name="user_id">
+            {% for user in available_users %}
+            <option value="{{ user.id }}">{{ user.first_name }} {{ user.last_name }}</option>
+            {% endfor %}
+        </select>
+        <input type="submit" value="Add User">
+    </form>
+    {% endif %}
+{% endblock %}
