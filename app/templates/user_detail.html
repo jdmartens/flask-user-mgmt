@@ -11,7 +11,8 @@
         <p><strong>Last Signed On:</strong> {{ user.last_signed_on }}</p>
         <p><strong>Admin:</strong> {{ 'Yes' if user.admin else 'No' }}</p>
     </div>
-    {% if current_user.admin or current_user.id == user.id %}
-    <a href="{{ url_for('user.edit_user', user_id=user.id) }}">Edit Profile</a>
-    {% endif %}
+    <a href="{{ url_for('user.edit_user', user_id=user.id) }}">Edit User</a>
+    <form method="POST" action="{{ url_for('user.delete_user', user_id=user.id) }}" style="display: inline;">
+        <input type="submit" value="Delete User" onclick="return confirm('Are you sure you want to delete this user?');">
+    </form>
 {% endblock %}
