@@ -1,4 +1,7 @@
-from flask import Blueprint, request, jsonify, render_template, redirect, url_for, flash, send_file
+from flask import (
+    Blueprint, request, jsonify, render_template, 
+    redirect, url_for, flash, send_file, abort
+)
 from app.models.user import User
 from app import db
 import boto3
@@ -6,6 +9,8 @@ from io import BytesIO
 from werkzeug.utils import secure_filename
 from app.forms.user_form import UserForm
 from config import settings
+from app.routes.auth import role_required
+from flask_login import current_user
 
 bp = Blueprint('user', __name__)
 
@@ -37,6 +42,7 @@ def get_profile_pic(user_id):
 
 
 @bp.route('/users/create', methods=['GET', 'POST'])
+@role_required('admin')
 def create_user():
     form = UserForm()
     if form.validate_on_submit():
@@ -61,6 +67,8 @@ def create_user():
 @bp.route('/users/<int:user_id>/edit', methods=['GET', 'POST'])
 def edit_user(user_id):
     user = User.query.get_or_404(user_id)
+    if current_user.role != 'admin' and current_user.id != user.id:
+        abort(403)
     form = UserForm(obj=user)
     if form.validate_on_submit():
         form.populate_obj(user)
@@ -76,6 +84,7 @@ def edit_user(user_id):
 
 
 @bp.route('/users/<int:user_id>/delete', methods=['POST'])
+@role_required('admin')
 def delete_user(user_id):
     user = User.query.get_or_404(user_id)
     db.session.delete(user)
