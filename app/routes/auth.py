@@ -1,13 +1,27 @@
-from flask import Blueprint, request, jsonify, session, redirect, url_for
+from flask import Blueprint, request, jsonify, session, redirect, url_for, abort
 import boto3
 from app import oauth, db
 import logging
+from functools import wraps
+from flask_login import current_user
 
 bp = Blueprint('auth', __name__)
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
+
+
+def role_required(role):
+    def decorator(f):
+        @wraps(f)
+        def decorated_function(*args, **kwargs):
+            if not current_user.is_authenticated or current_user.role != role:
+                abort(403)
+            return f(*args, **kwargs)
+        return decorated_function
+    return decorator
+
 
 @bp.route('/signin', methods=['POST'])
 def signin():
