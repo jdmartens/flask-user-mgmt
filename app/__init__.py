@@ -4,13 +4,16 @@ from flask_sqlalchemy import SQLAlchemy
 from config import settings
 
 db = SQLAlchemy()
+oauth = OAuth()
 
 def create_app():
     app = Flask(__name__)
     app.config.from_object(settings)
+    app.debug = True
 
     # app.secret_key = os.urandom(24)  # Use a secure random key in production
-    oauth = OAuth(app)
+    # oauth = OAuth(app)
+    oauth.init_app(app)
 
     oauth.register(
         name='oidc',
@@ -23,10 +26,11 @@ def create_app():
 
     db.init_app(app)
 
-    from app.routes import auth, user, group
+    from app.routes import auth, user, group, home
     app.register_blueprint(auth.bp)
     app.register_blueprint(user.bp)
     app.register_blueprint(group.bp)
+    app.register_blueprint(home.bp)
 
     return app
 
