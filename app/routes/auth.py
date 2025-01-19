@@ -5,6 +5,8 @@ import logging
 from functools import wraps
 from flask_login import current_user
 
+from app.models.user import User
+
 bp = Blueprint('auth', __name__)
 
 # Configure logging
@@ -38,9 +40,19 @@ def login():
 @bp.route('/authorize')
 def authorize():
     token = oauth.oidc.authorize_access_token()
-    user = token['userinfo']
-    logger.info(f'User: {user}')
-    session['user'] = user
+    userinfo = token['userinfo']
+    user = User.query.filter_by(email=userinfo.get('email', '')).first()
+    if not user:
+        user = User(
+            email=userinfo.get('email', ''),
+            first_name=userinfo.get('given_name', ''),
+            last_name=userinfo.get('family_name', ''),
+            role='user'
+        )
+        db.session.add(user)
+        db.session.commit()
+    logger.info(f'User: {userinfo}')
+    session['user'] = userinfo
     return redirect(url_for('index'))
 
 @bp.route('/logout')
