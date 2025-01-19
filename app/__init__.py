@@ -1,4 +1,4 @@
-from flask import Flask, redirect, url_for, session
+from flask import Flask, app, redirect, url_for, session
 from authlib.integrations.flask_client import OAuth
 from flask_sqlalchemy import SQLAlchemy
 from config import settings
@@ -11,16 +11,15 @@ def create_app():
     app.config.from_object(settings)
     app.debug = True
 
-    # app.secret_key = os.urandom(24)  # Use a secure random key in production
-    # oauth = OAuth(app)
+    app.secret_key = settings.SECRET_KEY
     oauth.init_app(app)
 
     oauth.register(
         name='oidc',
-        authority='https://cognito-idp.us-east-2.amazonaws.com/us-east-2_uxevrdBQe',
-        client_id='5t0a625as4n1dhpp5vfdbb9aqr',
-        client_secret='<client secret>',
-        server_metadata_url='https://cognito-idp.us-east-2.amazonaws.com/us-east-2_uxevrdBQe/.well-known/openid-configuration',
+        authority=settings.COGNITO_AUTHORITY,
+        client_id=settings.COGNITO_APP_CLIENT_ID,
+        client_secret=settings.COGNITO_APP_CLIENT_SECRET,
+        server_metadata_url=settings.COGNITO_META_URL,
         client_kwargs={'scope': 'phone openid email'}
     )
 
@@ -33,4 +32,3 @@ def create_app():
     app.register_blueprint(home.bp)
 
     return app
-
