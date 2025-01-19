@@ -11,6 +11,7 @@ class Config(BaseSettings):
     S3_BUCKET: str
     COGNITO_USER_POOL_ID: str
     COGNITO_APP_CLIENT_ID: str
+    FLASK_RUN_PORT: int
 
     model_config = SettingsConfigDict(env_file='.env', env_file_encoding='utf-8')
 
