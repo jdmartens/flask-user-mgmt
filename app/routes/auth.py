@@ -1,3 +1,4 @@
+from datetime import datetime
 from flask import Blueprint, request, jsonify, session, redirect, url_for, abort
 import boto3
 from app import oauth, db
@@ -47,13 +48,19 @@ def authorize():
             email=userinfo.get('email', ''),
             first_name=userinfo.get('given_name', ''),
             last_name=userinfo.get('family_name', ''),
-            role='user'
+            last_signed_on = datetime.now(),
+            admin=False
         )
         db.session.add(user)
         db.session.commit()
+    else:
+        user.last_signed_on = datetime.now()
+        db.session.commit()
+    current_user.role = 'admin' if user.admin else 'user'
     logger.info(f'User: {userinfo}')
     session['user'] = userinfo
-    return redirect(url_for('index'))
+    return redirect(url_for('user.index'))
+
 
 @bp.route('/logout')
 def logout():
