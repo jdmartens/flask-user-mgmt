@@ -50,7 +50,7 @@ def create_user():
             first_name=form.first_name.data,
             last_name=form.last_name.data,
             email=form.email.data,
-            admin=form.admin.data
+            role=form.role.data
         )
         if form.profile_pic.data:
             filename = secure_filename(form.profile_pic.data.filename)

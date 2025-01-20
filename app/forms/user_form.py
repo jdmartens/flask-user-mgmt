@@ -1,5 +1,5 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField, BooleanField, FileField
+from wtforms import StringField, BooleanField, FileField, SelectField
 from wtforms.validators import DataRequired, Email
 
 class UserForm(FlaskForm):
@@ -7,3 +7,4 @@ class UserForm(FlaskForm):
     last_name = StringField('Last Name', validators=[DataRequired()])
     email = StringField('Email', validators=[DataRequired(), Email()])
     profile_pic = FileField('Profile Picture')
+    role = SelectField('Role', choices=[('user', 'User'), ('admin', 'Admin')], validators=[DataRequired()])
