@@ -26,17 +26,11 @@ def role_required(role):
     return decorator
 
 
-@bp.route('/signin', methods=['POST'])
-def signin():
-    # Implement Cognito sign-in logic here
-    pass
-
 @bp.route('/login')
 def login():
-    # Alternate option to redirect to /authorize
-    # redirect_uri = url_for('authorize', _external=True)
-    # return oauth.oidc.authorize_redirect(redirect_uri)
-    return oauth.oidc.authorize_redirect('http://localhost:5001/authorize')
+    redirect_uri = url_for('auth.authorize', _external=True)
+    return oauth.oidc.authorize_redirect(redirect_uri)
+
 
 @bp.route('/authorize')
 def authorize():
