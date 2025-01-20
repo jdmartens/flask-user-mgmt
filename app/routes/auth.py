@@ -4,7 +4,7 @@ import boto3
 from app import oauth, db
 import logging
 from functools import wraps
-from flask_login import current_user
+from flask_login import current_user, login_user
 
 from app.models.user import User
 
@@ -49,23 +49,23 @@ def authorize():
             first_name=userinfo.get('given_name', ''),
             last_name=userinfo.get('family_name', ''),
             last_signed_on = datetime.now(),
-            admin=False
+            role = 'user'
         )
         db.session.add(user)
-        db.session.commit()
     else:
         user.last_signed_on = datetime.now()
-        db.session.commit()
-    current_user.role = 'admin' if user.admin else 'user'
+    db.session.commit()
+    login_user(user)
+    # current_user.role = 'admin' if user.admin else 'user'
     logger.info(f'User: {userinfo}')
     session['user'] = userinfo
-    return redirect(url_for('user.index'))
+    return redirect(url_for('user.user_list'))
 
 
 @bp.route('/logout')
 def logout():
     session.pop('user', None)
-    return redirect(url_for('user.index'))
+    return redirect(url_for('home.index'))
 
 
 @bp.route('/init_db')
