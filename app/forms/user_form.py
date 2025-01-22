@@ -1,5 +1,5 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField, BooleanField, FileField, SelectField
+from wtforms import StringField, BooleanField, FileField, SelectField, SelectMultipleField
 from wtforms.validators import DataRequired, Email
 
 class UserForm(FlaskForm):
@@ -8,3 +8,4 @@ class UserForm(FlaskForm):
     email = StringField('Email', validators=[DataRequired(), Email()])
     profile_pic = FileField('Profile Picture')
     role = SelectField('Role', choices=[('user', 'User'), ('admin', 'Admin')], validators=[DataRequired()])
+    groups = SelectMultipleField('Groups', coerce=int)
