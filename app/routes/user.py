@@ -2,6 +2,7 @@ from flask import (
     Blueprint, request, jsonify, render_template, 
     redirect, url_for, flash, send_file, abort
 )
+from app.models.group import Group, GroupUser
 from app.models.user import User
 from app import db
 import boto3
@@ -70,6 +71,8 @@ def edit_user(user_id):
     if current_user.role != 'admin' and current_user.id != user.id:
         abort(403)
     form = UserForm(obj=user)
+    all_groups = Group.query.all()
+    user_group_ids = {group_user.group_id for group_user in user.groups}
     if form.validate_on_submit():
         form.populate_obj(user)
         if form.profile_pic.data:
@@ -80,10 +83,27 @@ def edit_user(user_id):
                       region_name=settings.AWS_REGION)
             s3.upload_fileobj(form.profile_pic.data, settings.S3_BUCKET, filename)
             user.profile_pic = filename
+        selected_group_ids = set(map(int, request.form.getlist('groups')))
+        for group in all_groups:
+            if group.id in selected_group_ids and group.id not in user_group_ids:
+                # Add user to group
+                group_user = GroupUser(group_id=group.id, user_id=user.id)
+                db.session.add(group_user)
+            elif group.id not in selected_group_ids and group.id in user_group_ids:
+                # Remove user from group
+                GroupUser.query.filter_by(group_id=group.id, user_id=user.id).delete()
+
         db.session.commit()
         flash('User updated successfully', 'success')
         return redirect(url_for('user.user_detail', user_id=user.id))
-    return render_template('user_form.html', form=form, user=user, title='Edit User')
+    return render_template(
+        'user_form.html',
+        form=form,
+        title='Edit User',
+        user=user,
+        all_groups=all_groups,
+        user_group_ids=user_group_ids
+    )
 
 
 @bp.route('/users/<int:user_id>/delete_profile_pic', methods=['POST'])
