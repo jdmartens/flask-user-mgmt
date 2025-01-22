@@ -15,6 +15,17 @@ class User(db.Model):
 
     def get_id(self):
         return str(self.id)
+    
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'first_name': self.first_name,
+            'last_name': self.last_name,
+            'email': self.email,
+            'profile_pic': self.profile_pic,
+            'last_signed_on': self.last_signed_on,
+            'role': self.role
+        }
 
     @property
     def is_active(self):
