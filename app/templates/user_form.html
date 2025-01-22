@@ -36,13 +36,9 @@
             <img src="{{ url_for('user.get_profile_pic', user_id=user.id) }}" alt="Profile Picture" style="max-width: 200px;"><br>
             
             <!-- Button to delete profile picture -->
-            <form method="POST" action="{{ url_for('user.delete_profile_pic', user_id=user.id) }}" style="display: inline;">
+            <!-- <form method="POST" action="{{ url_for('user.delete_profile_pic', user_id=user.id) }}" style="display: inline;">
                 <input type="submit" value="Delete Profile Picture">
-            </form><br><br>
-            
-            <!-- Option to upload a new file -->
-            {{ form.profile_pic.label }}
-            {{ form.profile_pic }}
+            </form><br> -->
         
         {% else %}
             <!-- Show only "Choose File" when no picture is configured -->
@@ -50,6 +46,14 @@
             {{ form.profile_pic }}
         
         {% endif %}
+    </div>
+    <div>
+        <label>Group Membership</label><br>
+        {% for group in all_groups %}
+            <input type="checkbox" name="groups" value="{{ group.id }}"
+                   {% if group.id in user_group_ids %}checked{% endif %}>
+            {{ group.name }}<br>
+        {% endfor %}
     </div>
 
     <input type="submit" value="Submit">
