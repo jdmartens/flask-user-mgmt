@@ -74,13 +74,16 @@ def edit_user(user_id):
     all_groups = Group.query.all()
     user_group_ids = {group_user.group_id for group_user in user.groups}
     if form.validate_on_submit():
-        form.populate_obj(user)
-        if form.profile_pic.data:
+        user.first_name = form.first_name.data
+        user.last_name = form.last_name.data
+        user.email = form.email.data
+        user.role = form.role.data
+        if form.profile_pic.data and hasattr(form.profile_pic.data, 'filename'):
             filename = secure_filename(form.profile_pic.data.filename)
             s3 = boto3.client('s3',
-                      aws_access_key_id=settings.AWS_ACCESS_KEY_ID,
-                      aws_secret_access_key=settings.AWS_SECRET_ACCESS_KEY,
-                      region_name=settings.AWS_REGION)
+                              aws_access_key_id=settings.AWS_ACCESS_KEY_ID,
+                              aws_secret_access_key=settings.AWS_SECRET_ACCESS_KEY,
+                              region_name=settings.AWS_REGION)
             s3.upload_fileobj(form.profile_pic.data, settings.S3_BUCKET, filename)
             user.profile_pic = filename
         selected_group_ids = set(map(int, request.form.getlist('groups')))
@@ -91,8 +94,10 @@ def edit_user(user_id):
                 db.session.add(group_user)
             elif group.id not in selected_group_ids and group.id in user_group_ids:
                 # Remove user from group
-                GroupUser.query.filter_by(group_id=group.id, user_id=user.id).delete()
-
+                group_user = GroupUser.query.filter_by(group_id=group.id, user_id=user.id).first()
+                if group_user:
+                    db.session.delete(group_user)
+        
         db.session.commit()
         flash('User updated successfully', 'success')
         return redirect(url_for('user.user_detail', user_id=user.id))
