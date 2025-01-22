@@ -83,7 +83,30 @@ def edit_user(user_id):
         db.session.commit()
         flash('User updated successfully', 'success')
         return redirect(url_for('user.user_detail', user_id=user.id))
-    return render_template('user_form.html', form=form, title='Edit User')
+    return render_template('user_form.html', form=form, user=user, title='Edit User')
+
+
+@bp.route('/users/<int:user_id>/delete_profile_pic', methods=['POST'])
+def delete_profile_pic(user_id):
+    user = User.query.get_or_404(user_id)
+
+    # Delete the profile picture from S3 if it exists
+    if user.profile_pic:
+        s3 = boto3.client('s3',
+                      aws_access_key_id=settings.AWS_ACCESS_KEY_ID,
+                      aws_secret_access_key=settings.AWS_SECRET_ACCESS_KEY,
+                      region_name=settings.AWS_REGION)
+        try:
+            s3.delete_object(Bucket=settings.S3_BUCKET, Key=user.profile_pic)
+        except Exception as e:
+            flash(f"Error deleting profile picture: {e}", 'danger')
+
+        # Remove the profile picture reference from the database
+        user.profile_pic = None
+        db.session.commit()
+        flash('Profile picture deleted successfully!', 'success')
+
+    return redirect(url_for('user.edit_user', user_id=user.id))
 
 
 @bp.route('/users/<int:user_id>/delete', methods=['POST'])
