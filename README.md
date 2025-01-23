@@ -74,9 +74,9 @@ This is a Flask-based user management system that allows administrators to manag
 ## Running the application
 
 1. Start the development server:
-  ```bash
-  make run_app
-  ```
+    ```bash
+    make run_app
+    ```
 2. Access the application at `http://localhost:5001`.
 
 ## Usage
@@ -94,4 +94,5 @@ Group Management
   - View Group: Navigate to /groups/<group_id> to view group details.
 
 ## License
+
 This project is licensed under the MIT License. See the LICENSE file for details.
